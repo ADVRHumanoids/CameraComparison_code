@@ -78,7 +78,7 @@ run_test() {
   bag_name="${camera}_${distance_mm}_${mode}_$RESULT_DIR"
   # ros2 bag record -s mcap -o "${folder}/${bag_name}" $bag_topics > /dev/null 2>&1 &
   # pid_bag=$!
-  ros2 run rosbag_service_pkg rosbag_service_client "$bag_name"
+  ros2 run rosbag_service rosbag_service_client "$bag_name"
 
   echo "[INFO] Starting test for $camera ($mode) at $distance_mm mm..."
 
@@ -134,7 +134,7 @@ run_test() {
       kill -SIGINT "$pid_echo" 2>/dev/null
       wait "$pid_echo" 2>/dev/null
       #sleep $wait_time
-      ros2 run rosbag_service_pkg rosbag_stop_client "$bag_name"
+      ros2 run rosbag_service rosbag_stop_client "$bag_name"
       # kill -SIGINT $pid_bag 2>/dev/null
       # wait $pid_bag 2>/dev/null
       sleep 5

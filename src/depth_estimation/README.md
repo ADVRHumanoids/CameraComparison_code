@@ -146,7 +146,7 @@ For each distance and for each camera+mode combination, it:
 * The script **modifies files in-place** (it overwrites `launch/camera.launch.py` for RealSense runs).
 * It assumes a **workspace layout** where `depth_estimation` lives under `./src` (see `WS_BASE=./src`).
 * It assumes external tooling/packages exist:
-   * `rosbag_service_pkg` (`rosbag_service_client` and `rosbag_stop_client`),
+   * `rosbag_service` (`rosbag_service_client` and `rosbag_stop_client`),
    * a ZED wrapper checkout at `./src/zed-ros2-wrapper-humble-v5.0.0/zed_wrapper/` (for ZED runs),
    * valid SSH configuration for the `username@hostname` copy step.
 
@@ -183,7 +183,7 @@ This package depends on standard ROS 2 Humble (or later) libraries plus image/po
    * RealSense: `realsense2_camera`
    * ZED: `zed_wrapper`
 * If you use the automated acquisition script:
-   * `rosbag_service_pkg`
+   * `rosbag_service`
    * `bc` (used for simple arithmetic in bash)
 
 ## License

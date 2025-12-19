@@ -431,6 +431,12 @@ void DepthEstimation::SyncCallback(const Image::ConstSharedPtr &depth_msg,
 
     // Compute the average of the masked depth map
     std::vector<float> depth{depth_points_from_depth_map(depth_msg, mask)};
+
+    // Log mask vs valid depth points for offline analysis
+    RCLCPP_INFO_STREAM(
+      this->get_logger(),
+      "Number of pixels in the mask: " << mask.size()
+                  << " Valid depth points: " << depth.size());
     
     // Add the distance from the optical frame to the reference frame
   	geometry_msgs::msg::Vector3 distance;
@@ -507,6 +513,14 @@ void DepthEstimation::SyncPointCloudCallback(const Image::ConstSharedPtr &depth_
 
 	// Compute the average of the masked depth map
 	std::vector<float> depth{depth_points_from_depth_map(depth_msg, mask)};
+
+
+  // Log mask vs valid depth points for offline analysis
+  RCLCPP_INFO_STREAM(
+    this->get_logger(),
+    "Number of pixels in the mask: " << mask.size()
+                 << " Valid depth points: " << depth.size());
+                 
 
 	// Add the distance from the optical frame to the reference frame
 	auto distance{distance_from_reference(depth_msg->header.frame_id)};

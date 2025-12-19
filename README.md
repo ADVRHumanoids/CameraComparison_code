@@ -228,6 +228,125 @@ Optional decompression:
 
 The script supports preserving `directoryLabel` from Dataverse, skipping already-downloaded files if sizes match, optional archive cleanup, and collects logs from `logs_*.tar.xz` archives.
 
+## Plotting and statistics (`plot_results.py`)
+
+The file `plot_results.py` parses the experiment log files produced by the ROS 2 pipeline (and/or the provided dataset logs) and generates:
+
+- comparison plots (saved under `plots/` when `--output-folder` is provided), and
+- a LaTeX table summarizing outlier statistics (e.g., `outliers_table_filtered.tex`).
+
+### Expected inputs
+
+The script expects log files named like:
+
+- `<camera>_<distance_mm>_<mode>.txt`
+
+For example:
+
+- `rsi_0600_hd_natural.txt`
+
+It scans the dataset folders by default:
+
+- `dataset/natural`
+- `dataset/artificial`
+
+and parses depth/RMSE lines from the logs (e.g., average depth, RMS, RMSE).
+
+### Outputs
+
+Depending on options, it produces:
+
+- violin plots of average depth error vs distance,
+- violin plots of RMSE vs distance,
+- scatter plots (average error vs RMSE),
+- `outliers_table_filtered.tex` (LaTeX longtable).
+
+When `--output-folder plots` is used, plot images are saved under subfolders like `plots/depth/`, `plots/rmse/`, and `plots/scatter/`.
+
+### Common usage
+
+Create plots (and filter outliers with a threshold, in meters):
+
+```bash
+python3 plot_results.py --output-folder plots --outlier-threshold 0.3
+```
+
+Filter by camera and/or mode:
+
+```bash
+python3 plot_results.py --camera rsi rsf --mode hd sd --output-folder plots
+python3 plot_results.py --camera zedx zedxm --mode all --output-folder plots
+```
+
+Restrict the plotted distance range:
+
+```bash
+python3 plot_results.py --min-dist 0.4 --max-dist 1.0 --output-folder plots
+```
+
+### Python dependencies
+
+The plotting script uses standard Python scientific libraries pinned in `requirements.txt`:
+
+- `matplotlib`
+- `numpy`
+- `pandas`
+- `seaborn`
+
+Install them in a virtual environment (recommended):
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Mask vs valid-depth consistency (`get_depth_image_outlier.py`)
+
+The script `get_depth_image_outlier.py` provides a quick sanity check on how well the depth stream “covers” the selected ROI mask.
+It parses `.txt` log files and looks for lines like:
+
+- `Number of pixels in the mask: <N> Valid depth points: <M>`
+
+For each file, it computes the percentage difference between valid depth points and mask pixels:
+
+$$
+	ext{diff}(\%) = \frac{|M - N|}{N} \cdot 100
+$$
+
+and reports (per test and distance) the **mean / min / max** of that value across all occurrences in the log.
+
+### Inputs
+
+- One or more root folders passed via `--root-dir`.
+- The script recursively scans for `*.txt` files.
+- It assumes filenames contain the distance as the second underscore-separated token, e.g. `rsi_0600_hd_natural.txt` (distance = `0600`).
+
+### Outputs
+
+- A matrix printed to stdout where rows are tests (filename without the distance token) and columns are distances.
+- Optional LaTeX export (`--tex out.tex`) to include the matrix in the paper.
+
+### Usage
+
+Run on both dataset folders and print the matrix:
+
+```bash
+python3 get_depth_image_outlier.py --root-dir dataset/natural dataset/artificial
+```
+
+Filter out rows where all mean values are 0:
+
+```bash
+python3 get_depth_image_outlier.py --root-dir dataset/natural dataset/artificial --filter
+```
+
+Export the table to LaTeX:
+
+```bash
+python3 get_depth_image_outlier.py --root-dir dataset/natural dataset/artificial --filter --tex depth_mask_outliers.tex
+```
+
 ## Citing / attribution
 
 If you use this repository, please cite the paper once available. A BibTeX entry and DOI will be added here.

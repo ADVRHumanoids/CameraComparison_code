@@ -122,6 +122,7 @@ RUN /bin/bash -lc "source /opt/ros/humble/setup.bash \
     python3-colcon-common-extensions \
     python3-colcon-core \
     ros-humble-zed-msgs \
+    ros-humble-rosbag2-storage-mcap \
     && sudo rosdep init \
     && sudo chmod -R a+rx /usr/local/lib/python3.10/ \
     && rosdep update \

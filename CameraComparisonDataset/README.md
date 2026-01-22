@@ -158,7 +158,7 @@ export PERSISTENT_ID=doi:10.48557/LUONQB
 ### Download the Downloader Script
 1. Download the dataset downloader
 ```bash
-git clone https://https://github.com/ADVRHumanoids/CameraComparison_code.git
+git clone https://github.com/ADVRHumanoids/CameraComparison_code.git
 cd CameraComparison_code
 chmod +x dataverse_downloader.sh
 ./dataverse_downloader.sh

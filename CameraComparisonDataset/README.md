@@ -205,3 +205,10 @@ This will:
 - tar
 - unzip
 - Sufficient disk space (see size warning above)
+
+# Disclaimer
+Please not that the log file provided with the Dataset contains only the log of the data collected during the experiments.<br>
+Other data presented in the paper have been analyzed using the ROS 2 bags provided with the dataset.
+
+>**NOTE**<br>
+>The ROS 2 bag for the test `ZED X HD Neural Natural` at 3000 mm has been corrupted during the analysis and thus it is usable only partially.

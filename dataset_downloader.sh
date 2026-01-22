@@ -131,10 +131,12 @@ decompress_archives() {
 # Parse args
 DECOMPRESS=false
 CLEAN_ARCHIVES=false
+LOG_ONLY=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -d|--decompress) DECOMPRESS=true ;;
     --clean-archives) CLEAN_ARCHIVES=true ;;
+    --log-only) LOG_ONLY=true ;;
     -h|--help)
       cat <<EOF
 Usage: $0 [--decompress|-d]
@@ -145,6 +147,8 @@ Options:
                       and collect all .txt files from any logs* folders into
                       $FOLDER/logs_extracted/
   --clean-archives    Remove archives after successful decompression.
+  --log-only          Download only files whose filename contains 'log'
+                      (case-insensitive).
 EOF
       exit 0
       ;;
@@ -159,13 +163,22 @@ if [[ -z "${API_TOKEN:-}" ]]; then
   exit 2
 fi
 
-# 1) Fetch dataset metadata if not present
-if [[ ! -s "$DATA_JSON" ]]; then
-  echo "Fetching dataset metadata into $DATA_JSON ..."
-  curl -fsS -H "X-Dataverse-key: $API_TOKEN" \
-    "${SERVER_URL%/}/api/datasets/export?exporter=${METADATA_FORMAT}&persistentId=${PERSISTENT_ID}&version=${VERSION}" \
-    -o "$DATA_JSON"
+# 1) Remove existing metadata/logs so each run starts clean
+if [[ -f "$DATA_JSON" ]]; then
+  rm -f "$DATA_JSON"
 fi
+
+# Logging (overwrite on each run)
+LOG_FILE="dataset_downloader.log"
+if [[ -f "$LOG_FILE" ]]; then
+  rm -f "$LOG_FILE"
+fi
+echo "=== Download run: $(date -u +'%Y-%m-%dT%H:%M:%SZ') ===" > "$LOG_FILE"
+
+echo "Fetching dataset metadata into $DATA_JSON ..."
+curl -fsS -H "X-Dataverse-key: $API_TOKEN" \
+  "${SERVER_URL%/}/api/datasets/export?exporter=${METADATA_FORMAT}&persistentId=${PERSISTENT_ID}&version=${VERSION}" \
+    -o "$DATA_JSON"
 
 if [[ ! -s "$DATA_JSON" ]]; then
   echo "Metadata export failed or $DATA_JSON is empty." >&2
@@ -182,6 +195,14 @@ jq -r '((.files) // .datasetVersion.files)[] | [.dataFile.id, .dataFile.filename
     exit 1
   }
 
+if [[ "$LOG_ONLY" == "true" ]]; then
+  echo "Filtering list to only filenames containing 'log' (case-insensitive) ..."
+  filtered_list=$(mktemp)
+  awk -F $'\t' 'BEGIN{IGNORECASE=1} $2 ~ /log/ {print}' "$tmp_list" > "$filtered_list"
+  rm -f "$tmp_list"
+  tmp_list="$filtered_list"
+fi
+
 if [[ ! -s "$tmp_list" ]]; then
   echo "No files found in metadata." >&2
   rm -f "$tmp_list"
@@ -193,9 +214,7 @@ echo "Found ${expected_count} files to consider."
 
 mkdir -p "${FOLDER}"
 
-# Logging and counters
-LOG_FILE="dataset_downloader.log"
-echo "=== Download run: $(date -u +'%Y-%m-%dT%H:%M:%SZ') ===" >> "$LOG_FILE"
+# Logging counters
 downloaded=0
 skipped=0
 failed=0

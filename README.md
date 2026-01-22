@@ -1,6 +1,6 @@
 # CameraComparison_code
 
-> **Paper**: _[Title TBD]_ (link will be added upon publication).
+> **Paper**: _Depth Estimation Comparison Between Realsense D435i, D435f, Stereolabs ZED X and ZED X Mini_ (link will be added upon publication).
 
 This repository contains the code and scripts used to compare depth sensing performance across multiple cameras (e.g., Intel RealSense and Stereolabs ZED) using a reproducible ROS 2 pipeline on **NVIDIA Jetson AGX Orin**.
 
@@ -212,6 +212,7 @@ If you hit this, the fix is to generate the codename from `/etc/os-release` (or 
 ## Dataset download (`dataset_downloader.sh`)
 
 `dataset_downloader.sh` downloads all files listed in a Dataverse metadata export.
+More information are available in this [README](CameraComparisonDataset/README.md)
 
 It requires an API token:
 
@@ -282,6 +283,11 @@ Restrict the plotted distance range:
 
 ```bash
 python3 plot_results.py --min-dist 0.4 --max-dist 1.0 --output-folder plots
+```
+
+Plot all the available options:
+```bash
+python3 plot_results.py --help
 ```
 
 ### Python dependencies

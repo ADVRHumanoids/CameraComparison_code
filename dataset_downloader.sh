@@ -20,7 +20,7 @@ set -euo pipefail
 : "${METADATA_FORMAT:="dataverse_json"}" # dataverse_json or ddi, etc.
 : "${VERSION:=":draft"}"                 # e.g. :draft or :latest
 : "${DATA_JSON:="dataset.json"}"
-: "${FOLDER:="dataset"}" # top-level download folder
+: "${FOLDER:="CameraComparisonDataset"}" # top-level download folder
 # --------------------------------------------------------------------
 
 
@@ -148,7 +148,7 @@ Options:
                       $FOLDER/logs_extracted/
   --clean-archives    Remove archives after successful decompression.
   --log-only          Download only files whose filename contains 'log'
-                      (case-insensitive).
+            (case-insensitive), plus README.md.
 EOF
       exit 0
       ;;
@@ -196,9 +196,9 @@ jq -r '((.files) // .datasetVersion.files)[] | [.dataFile.id, .dataFile.filename
   }
 
 if [[ "$LOG_ONLY" == "true" ]]; then
-  echo "Filtering list to only filenames containing 'log' (case-insensitive) ..."
+  echo "Filtering list to only filenames containing 'log' (case-insensitive), plus README.md ..."
   filtered_list=$(mktemp)
-  awk -F $'\t' 'BEGIN{IGNORECASE=1} $2 ~ /log/ {print}' "$tmp_list" > "$filtered_list"
+  awk -F $'\t' 'BEGIN{IGNORECASE=1} ($2 ~ /log/) || ($2 ~ /^readme\.md$/) {print}' "$tmp_list" > "$filtered_list"
   rm -f "$tmp_list"
   tmp_list="$filtered_list"
 fi

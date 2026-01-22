@@ -13,15 +13,26 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import defaultdict
+from pathlib import Path
 
 FILENAME_PATTERN = re.compile(r'(?P<camera>\w+)_(?P<distance>\d{4})_(?P<mode>[a-z_]+)\.txt')
 
-folders = {
-    "dataset/natural": "Natural Light",
-    "dataset/artificial": "Artificial Light"
-}
 
-def build_stats_dataframe(root_paths, min_dist=None, max_dist=None, outlier_threshold=None):
+def _normalize_folders(folders):
+    """Normalize folder inputs.
+
+    Args:
+        folders: either a dict-like {path: test_name} or an iterable of paths.
+
+    Returns:
+        list[tuple[str, str]]: (path, test_name)
+    """
+    if hasattr(folders, "items"):
+        return [(str(path), str(name)) for path, name in folders.items()]
+    return [(str(path), Path(str(path)).name) for path in folders]
+
+
+def build_stats_dataframe(folders, min_dist=None, max_dist=None, outlier_threshold=None):
     """
     Parse logs, compute errors, prepare data and statistics in one step.
     Returns:
@@ -35,13 +46,12 @@ def build_stats_dataframe(root_paths, min_dist=None, max_dist=None, outlier_thre
     pattern_rmse = re.compile(r"RMSE of the depth map \[m\]:\s*([0-9.e-]+)")
 
     stats_list = []
-    
-    for i, root_path in enumerate(root_paths):
-        test_name = folders.get(root_path, f"Test {i+1}")
-        print(f"Processing folder {i}: {root_path} → {test_name}")
-        print(f"Processing folder: {root_path}")
+
+    folder_items = _normalize_folders(folders)
+    for i, (path, test_name) in enumerate(folder_items):
+        print(f"Processing folder {i}: {path} → {test_name}")
         
-        for dirpath, _, filenames in os.walk(root_path):
+        for dirpath, _, filenames in os.walk(path):
             for filename in filenames:
                 match = FILENAME_PATTERN.match(filename)
                 if not match:
@@ -874,13 +884,18 @@ if __name__ == "__main__":
     parser.add_argument("--mode", type=str, nargs='*', help="Filter by one or more mode names (insert 'all' for no filter)")
     parser.add_argument("--min-dist", type=float, help="Minimum distance [m] to display in plots")
     parser.add_argument("--max-dist", type=float, help="Maximum distance [m] to display in plots")
+    parser.add_argument("--root-folder", type=str, default="CameraComparisonDataset", help="Root folder containing log file subfolders")
     parser.add_argument("--output-folder", type=str, default=None, help="Output folder for saving plots")
     parser.add_argument("--outlier-threshold", type=float, default=None, help="Outlier threshold in meters (default: None)")
     args = parser.parse_args()
 
-    folder_names = folders.keys()
+    # Define folders to process
+    folders = {
+        os.path.join(args.root_folder, "natural"): "Natural Light",
+        os.path.join(args.root_folder, "artificial"): "Artificial Light"
+    }
 
-    stats_df = build_stats_dataframe(folder_names, min_dist=args.min_dist, max_dist=args.max_dist,
+    stats_df = build_stats_dataframe(folders, min_dist=args.min_dist, max_dist=args.max_dist,
                                      outlier_threshold=args.outlier_threshold)
     export_outliers_latex(stats_df, filename="outliers_table_filtered.tex", no_iqr=True, filter_df=True)
 

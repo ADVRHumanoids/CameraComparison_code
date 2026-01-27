@@ -4,7 +4,6 @@ This dataset is part of an ongoing research project focused on camera performanc
 It contains recordings and logs collected across multiple environments, distances, and camera configurations.
 
 This README provides a high-level description of the dataset structure and instructions for downloading and restoring the data from Dataverse.  
-Scientific details, benchmarks, and experimental context will be added later.
 
 ---
 

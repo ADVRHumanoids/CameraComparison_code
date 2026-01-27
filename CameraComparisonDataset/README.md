@@ -66,6 +66,10 @@ Each distance directory represents a complete capture set for that environment-d
 
 ## 3. Dataset Structure (Uncompressed Form)
 
+> **NOTE**<br>
+> The filename convention is: <camera_type>_<distance_in_mm>_<modality>_<type_of_environments>.<br>
+> Modalities are: hd, sd fot the realsense, and hd (or) sd followed by the neural mode for the ZED cameras.
+
 After full restoration, each distance folder (e.g. `artificial/0400/`) contains:
 
 ### A. Log Files

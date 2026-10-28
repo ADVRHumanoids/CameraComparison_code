@@ -236,8 +236,6 @@ def analyze_recording(path, source, derived, seed, identity):
         staging = Path(temporary)
         planes, profiles, cached, positions, status = stream_geometry(path, accepted, pixels, samples, staging)
         planes.to_csv(staging / "planes.csv", index=False)
-        frames[["frame", "timestamp_ns", "accepted", "exclusion_reason"]].merge(
-            profiles, on=["frame", "timestamp_ns"], how="left", validate="one_to_many").to_csv(staging / "profile_frames.csv", index=False)
         accepted["plane_residual_sd_m"] = np.sqrt(planes.residual_var_m2.to_numpy())
         summary, bootstrap = math.recording_summary(accepted, seed)
         summary.update(recording_metadata(path.name), bag_frames=manifest["bag_frames"],
@@ -257,11 +255,10 @@ def analyze_recording(path, source, derived, seed, identity):
         boundaries.to_csv(staging / "boundary_metrics.csv", index=False)
         distances.to_csv(staging / "boundary_distance_profiles.csv", index=False)
         np.savez_compressed(staging / "boundary_pixels.npz", **boundary_pixels)
-        atomic_json(staging / "summary.json", summary)
-        atomic_json(staging / "profile_summary.json", profile_summary(profiles, cached, positions))
         if manifest["input_identity"] != input_identity(path):
             raise ValueError("Raw input changed during analysis")
-        checkpoint = dict(fingerprint=fingerprint, summary=summary, reader=status,
+        checkpoint = dict(fingerprint=fingerprint, summary=summary,
+                          profile_summary=profile_summary(profiles, cached, positions), reader=status,
                           output_sha256={p.name: sha256(p) for p in sorted(staging.iterdir())})
         atomic_json(staging / "manifest.json", checkpoint)
         staging.rename(destination)

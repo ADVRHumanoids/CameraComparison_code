@@ -1,7 +1,7 @@
 """Download and extract the paper's Dataverse bags without acquisition logs.
 
 Usage: python main.py download [--dataset PATH] [--stream].
-Inputs: IIT Dataverse DOI 10.48557/LUONQB, release 1.0; optional API_TOKEN.
+Inputs: IIT Dataverse DOI 10.48557/LUONQB, release 1.0; optional DATAVERSE_TOKEN.
 Outputs: retained .tar.xz archives, recording directories, release metadata.
 Requires: Python 3.12+ standard library with lzma support; no ROS installation.
 Streaming mode preserves staging on failure and never stores compressed archives.
@@ -31,7 +31,7 @@ COMPLETION_FILE = ".paper_reproduction_extracted.json"
 def open_remote(url):
     """Use credentials only for the explicitly addressed Dataverse request."""
     request = Request(url)
-    token = os.environ.get("API_TOKEN")
+    token = os.environ.get("DATAVERSE_TOKEN")
     if token:
         # Redirected storage hosts must not receive the Dataverse API token.
         request.add_unredirected_header("X-Dataverse-key", token)
@@ -210,11 +210,8 @@ def extract_recording(archive, checksum):
             contents.rename(destination)
 
 
-def download_dataset(dataset, stream=False, workers=1):
-    """Download the exact 288-recording design; never select log archives."""
-    root = dataset.expanduser().resolve()
-    if workers < 1:
-        raise ValueError("Download workers must be positive")
+def release_entries():
+    """Fetch and validate the published release and its complete recording design."""
     query = urlencode({"persistentId": DOI})
     with open_remote(f"{SERVER}/api/datasets/:persistentId/versions/{VERSION}?{query}") as response:
         metadata = json.load(response)
@@ -245,6 +242,16 @@ def download_dataset(dataset, stream=False, workers=1):
         selected.append(entry)
     if expected - found:
         raise ValueError(f"Release is missing {len(expected - found)} expected recording archives")
+
+    return metadata, selected
+
+
+def download_dataset(dataset, stream=False, workers=1):
+    """Download the exact 288-recording design; never select log archives."""
+    root = dataset.expanduser().resolve()
+    if workers < 1:
+        raise ValueError("Download workers must be positive")
+    metadata, selected = release_entries()
 
     root.mkdir(parents=True, exist_ok=True)
     manifest = root / "release_metadata.json"

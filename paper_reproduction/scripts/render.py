@@ -22,6 +22,24 @@ from .extract import atomic_json, sha256
 from . import render_plots as plots
 
 
+def register_fonts():
+    """Use bundled fonts consistently, independent of system font installations."""
+    bundled = Path(__file__).resolve().parents[1] / "fonts"
+    dejavu = Path(matplotlib.get_data_path()) / "fonts/ttf"
+    files = [bundled / f"LiberationSerif-{style}.ttf" for style in ("Regular", "Bold", "Italic", "BoldItalic")]
+    files += [dejavu / f"DejaVuSans{suffix}.ttf" for suffix in ("", "-Bold", "-Oblique", "-BoldOblique")]
+    for path in files:
+        if not path.is_file():
+            raise ValueError(f"Required bundled font missing: {path}")
+    # Prefer the shipped versions even if another version is installed globally.
+    font_manager.fontManager.ttflist = [font for font in font_manager.fontManager.ttflist
+                                      if font.name not in ("Liberation Serif", "DejaVu Sans")]
+    for path in files:
+        font_manager.fontManager.addfont(path)
+    return {name: font_manager.findfont(name, fallback_to_default=False)
+            for name in ("Liberation Serif", "DejaVu Sans")}
+
+
 def validate_file(analysis, name, filename, derived, inputs):
     """Verify the file checksum and its producer's link to the extraction manifest."""
     folder = analysis / ("derived/recordings" if derived else "recordings") / name
@@ -83,7 +101,7 @@ def render_paper(analysis, destination, figures=None):
         raise ValueError("Figure selection must contain distinct computed manuscript paths, e.g. revision/temporal_maps")
     if matplotlib.__version__ != "3.10.8":
         raise ValueError("Exact rendering requires matplotlib==3.10.8; install requirements.txt")
-    fonts = {name: font_manager.findfont(name, fallback_to_default=False) for name in ("Liberation Serif", "DejaVu Sans")}
+    fonts = register_fonts()
     inputs, arrays, table_folder = {}, {}, None
     def load(name, filename, derived=True):
         key = (name, filename, derived)

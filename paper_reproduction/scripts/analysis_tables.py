@@ -174,13 +174,14 @@ def export_tables(output, records):
     summaries, frames, boundaries, boundary_distances, profiles, normals, samples = [], [], [], [], [], {}, {}
     for name in names:
         folder = derived / "recordings" / name
-        summary = json.loads((folder / "summary.json").read_text())
+        checkpoint = json.loads((folder / "manifest.json").read_text())
+        summary = checkpoint["summary"]
         metadata = recording_metadata(name)
         summaries.append(summary)
         frames.append(pd.read_csv(output / "recordings" / name / "frames.csv"))
         for filename, rows in (("boundary_metrics.csv", boundaries), ("boundary_distance_profiles.csv", boundary_distances)):
             rows.append(pd.read_csv(folder / filename).assign(**metadata))
-        profiles.append(dict(**metadata, **json.loads((folder / "profile_summary.json").read_text())))
+        profiles.append(dict(**metadata, **checkpoint["profile_summary"]))
         plane = pd.read_csv(folder / "planes.csv")
         _, normals[name] = frame_geometry(plane.a, plane.b)
         with np.load(folder / "bootstrap.npz", allow_pickle=False) as cache:

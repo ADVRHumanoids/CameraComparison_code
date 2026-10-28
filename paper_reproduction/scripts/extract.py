@@ -25,7 +25,7 @@ from .storage import staging_directory
 NAME = re.compile(r"(rsi|rsf|zedx|zedxm)_(\d{4})_(hd|sd)(?:_(neural(?:_light|_plus)?))?_(natural|artificial)")
 DISTANCES = {400, 600, 800, 1000, 1400, 1800, 2200, 2600, 3000}
 PACKAGES = ("numpy", "pandas", "opencv-contrib-python-headless", "rosbags", "scipy", "mcap", "lz4", "zstandard")
-RESERVE_BYTES = 1024**3
+RESERVE_BYTES = 512 * 1024**2
 
 
 def sha256(path):
@@ -158,10 +158,10 @@ def extraction_identity():
 
 def check_space(output, recordings):
     """Budget compact outputs before starting, retaining a 1 GiB free margin."""
-    # A conservative bound for frame CSVs, per-pixel moments and selected crops.
-    needed = recordings * 16 * 1024**2
+    # The verified complete extraction/analysis currently occupies under 400 MB.
+    needed = recordings * 2 * 1024**2
     if shutil.disk_usage(output).free < needed + RESERVE_BYTES:
-        raise RuntimeError(f"Insufficient output space: need {needed} bytes plus a 1 GiB reserve")
+        raise RuntimeError(f"Insufficient output space: need {needed} bytes plus a 512 MiB reserve")
     return needed
 
 

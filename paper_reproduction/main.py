@@ -35,7 +35,7 @@ def main():
     render.add_argument("--destination", type=Path, default=Path(__file__).resolve().parent,
                         help="Parent folder for figures/ and tables/")
     render.add_argument("--figure", nargs="+", help="Explicit figure paths, e.g. revision/temporal_maps; omit for all figures/tables")
-    all_stages = commands.add_parser("all", help="Extract, analyze and render the complete existing dataset")
+    all_stages = commands.add_parser("all", help="Download if needed, then extract, analyze and render the complete dataset")
     all_stages.add_argument("--dataset", type=Path, default=Path(__file__).resolve().parent / "dataset")
     all_stages.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "analysis")
     all_stages.add_argument("--destination", type=Path, default=Path(__file__).resolve().parent)
@@ -64,6 +64,9 @@ def main():
             runner = incremental_all if args.command == "incremental_all" else incremental_download
             runner(args.cache, args.output, args.destination)
         else:
+            if not args.dataset.expanduser().is_dir():
+                from scripts.download_dataset import download_dataset
+                download_dataset(args.dataset, stream=True, workers=4)
             from scripts.extract import extract_dataset
             from scripts.analyze import analyze_dataset
             from scripts.render import render_paper

@@ -160,7 +160,7 @@ Using the same paths allows the pipeline to reuse the completed analysis rather 
 
 ## 4. Option B — Download the Complete Dataset
 
-Choose this workflow if you want to keep the raw recordings for inspection, additional experiments, or repeated analysis.
+Choose this workflow if you want to keep the raw recordings for inspection, additional experiments, or repeated analysis. The `all` command downloads the dataset automatically when the target folder does not exist, then runs extraction, analysis, and rendering.
 
 **Disk requirements:**
 
@@ -168,24 +168,7 @@ Choose this workflow if you want to keep the raw recordings for inspection, addi
 - Additional space for analysis outputs and temporary files (with working-space overhead of up to approximately 1 GB)
 - Approximately **144 GB of additional storage** if compressed archives are retained instead of streamed
 
-### Step 1. Download the dataset
-
-```bash
-python main.py download --stream --workers 4
-```
-
-This command:
-
-- Downloads all 288 recordings into `dataset/`.
-- Verifies the downloaded data.
-- Extracts recordings directly from the download stream.
-- Excludes acquisition logs.
-
-The `--stream` option avoids retaining compressed archives and significantly reduces disk usage.
-
-If the dataset has already been downloaded and extracted, skip this step.
-
-### Step 2. Generate all results
+### Run the complete pipeline
 
 ```bash
 OPENBLAS_NUM_THREADS=1 python main.py all \
@@ -194,13 +177,11 @@ OPENBLAS_NUM_THREADS=1 python main.py all \
   --destination results
 ```
 
-This command:
-
 1. Extracts measurements from the recordings.
 2. Computes the complete analysis.
 3. Generates the paper figures and tables.
 
-It reads the dataset in place and does not download any additional files.
+If the dataset is alredy present, it reads the dataset in place and does not download any additional files.
 
 A complete run requires all 288 recordings and may take considerable time, depending on your hardware and storage performance.
 
@@ -323,6 +304,9 @@ Changes to the code, installed dependencies, input recordings, or generated outp
 Interrupted staging files and existing outputs are preserved rather than silently overwritten or deleted.
 
 ## 7. Known Dataset Limitation
+
+Full extraction reserves 2 MiB per recording plus 512 MiB for working space; this
+is based on the verified full output size rather than the raw dataset size.
 
 One recording in the dataset is known to be damaged.
 

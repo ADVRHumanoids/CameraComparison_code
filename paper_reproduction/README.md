@@ -118,7 +118,7 @@ Recordings are processed incrementally, grouped by illumination and distance.
 
 | Directory | Contents |
 |---|---|
-| `incremental_results/` | Saved analysis, exported tables, and rendered results |
+| `results/` | Saved analysis, exported tables, and rendered results |
 | `incremental_cache/` | Download progress and temporary raw data |
 
 **Important:**
@@ -138,7 +138,7 @@ OPENBLAS_NUM_THREADS=1 python main.py incremental_all
 
 Completed, validated work is reused automatically.
 
-**Do not delete `incremental_results/` or `incremental_cache/` between runs.** Both directories are needed to resume safely.
+**Do not delete `results/` or `incremental_cache/` between runs.** Both directories are needed to resume safely.
 
 ### Generate numerical results without rendering
 

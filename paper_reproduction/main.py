@@ -43,8 +43,8 @@ def main():
         incremental = commands.add_parser(name, help="Incremental download/analysis/cleanup" + (" and rendering" if name == "incremental_all" else " without rendering"))
         incremental.add_argument("--cache", type=Path, default=Path(__file__).resolve().parent / "incremental_cache",
                                  help="New dedicated raw-download cache; analyzed raw files are deleted here")
-        incremental.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "incremental_results/analysis")
-        incremental.add_argument("--destination", type=Path, default=Path(__file__).resolve().parent / "incremental_results")
+        incremental.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "results/analysis")
+        incremental.add_argument("--destination", type=Path, default=Path(__file__).resolve().parent / "results")
     args = parser.parse_args()
     try:
         if args.command == "download":

@@ -222,8 +222,8 @@ OPENBLAS_NUM_THREADS=1 python main.py incremental_all \
 | Argument | Description | Default |
 |---|---|---|
 | `--cache PATH` | Dedicated download cache. Must be new or empty on first use; eligible raw files are deleted after successful processing. | `incremental_cache/` |
-| `--output PATH` | Analysis directory, created on the first run and reused when resuming. | `incremental_results/analysis/` |
-| `--destination PATH` | Parent directory reserved for rendering outputs. Must remain unchanged when resuming. | `incremental_results/` |
+| `--output PATH` | Analysis directory, created on the first run and reused when resuming. | `results/analysis/` |
+| `--destination PATH` | Parent directory reserved for rendering outputs. Must remain unchanged when resuming. | `results/` |
 
 ### 3.1 `incremental_download` — Numerical Results Only
 

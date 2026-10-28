@@ -173,7 +173,9 @@ python main.py render \
 
 ### 2.5 `all` — Run the Complete Analysis Pipeline
 
-Executes extraction, numerical analysis, and rendering in sequence.
+Runs the complete pipeline: if the dataset directory is absent, `all` downloads
+and extracts the dataset first, then performs extraction, numerical analysis,
+and rendering. If the directory already exists, it uses the recordings there.
 
 ```bash
 python main.py all [--dataset PATH] [--output PATH] [--destination PATH]
@@ -181,7 +183,7 @@ python main.py all [--dataset PATH] [--output PATH] [--destination PATH]
 
 | Argument | Description | Default |
 |---|---|---|
-| `--dataset PATH` | Root directory containing all 288 extracted recordings. | `dataset/` |
+| `--dataset PATH` | Dataset directory to use; downloaded and extracted when absent. | `dataset/` |
 | `--output PATH` | Directory for extraction and analysis artifacts, created or reused as appropriate. | `analysis/` |
 | `--destination PATH` | Parent directory for generated figures, tables, and rendering manifest. | Directory containing `main.py` |
 
@@ -196,12 +198,12 @@ OPENBLAS_NUM_THREADS=1 python main.py all \
 
 **Important:**
 
-- The dataset must already be downloaded and extracted; `all` does not download recordings.
+- If `--dataset` already exists, it must contain the extracted recordings. A missing directory is populated automatically.
 - All 288 recordings are required for complete reproduction.
 - Dataset and analysis directories must be separate directory trees.
 - The rendering destination must be outside the analysis input directory tree.
 
-This is the recommended command when the full extracted dataset is already available.
+This is the recommended command for a complete reproduction when sufficient disk space is available.
 
 ## 3. Incremental Processing
 

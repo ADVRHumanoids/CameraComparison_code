@@ -144,15 +144,15 @@ For each distance and for each camera+mode combination, it:
 ### Important notes / assumptions
 
 * The script **modifies files in-place** (it overwrites `launch/camera.launch.py` for RealSense runs).
-* It assumes a **workspace layout** where `depth_estimation` lives under `./src` (see `WS_BASE=./src`).
+* The runner resolves the workspace root from its own location under `data_collection/src/depth_estimation/scripts`.
 * It assumes external tooling/packages exist:
    * `rosbag_service` (`rosbag_service_client` and `rosbag_stop_client`),
-   * a ZED wrapper checkout at `./src/zed-ros2-wrapper-humble-v5.0.0/zed_wrapper/` (for ZED runs),
+   * a ZED wrapper checkout at `data_collection/src/zed-ros2-wrapper-humble-v5.0.0/zed_wrapper/` (for ZED runs),
    * valid SSH configuration for the `username@hostname` copy step.
 
 ### Usage
 
-Run it from the package directory (or adjust `WS_BASE` inside the script):
+Run it from the `data_collection/` workspace root:
 
 ```bash
 ./scripts/camera_test_runner.sh

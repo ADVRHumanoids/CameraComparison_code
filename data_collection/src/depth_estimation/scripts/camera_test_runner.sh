@@ -15,7 +15,8 @@ DIST_INC=0.2
 RESULT_DIR="natural"
 
 # Base path for the workspace
-WS_BASE="./src"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+WS_BASE="${SCRIPT_DIR}/../../.."
 
 # Modes for each camera
 declare -A MODES
